@@ -85,7 +85,7 @@ int SenseBoxBLE::addCharacteristic(const char* characteristicUUID){
 }
 
 int SenseBoxBLE::setConfigCharacteristic(const char* serviceUUID, const char* characteristicUUID){
-  if (h_configCharacteristic == 0) {
+  if (h_configCharacteristic != 0) {
     return -1;
   }
   SenseBoxBLE::addService(serviceUUID);
