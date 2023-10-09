@@ -8,7 +8,13 @@ class SenseBoxBLE
 
         static NINAB31Serial port;
 
+        static void configCharacteristicWritten();
+
+        static int h_configCharacteristic;
+
         static uint8_t* data; //this pointer points to the data the user wants to write in the characteristic
+
+        static uint8_t configCharValue[21];
 
 
     public:
@@ -22,13 +28,17 @@ class SenseBoxBLE
         static bool stopAdvertise();
 
         static int addService(const char* serviceUUID);
-        static int addCharacteristic(const char* characteristicUUID, int properties = 1, int permissions = 1, int maxLen = 20);
+        static int addCharacteristic(const char* characteristicUUID);
+        static int setConfigCharacteristic(const char* serviceUUID, const char* characteristicUUID);
 
         static bool write(int, float&);
         static bool write(int, float&, float&);
         static bool write(int, float&, float&, float&);
         static bool write(int, float&, float&, float&, float&);
         static bool write(int, float&, float&, float&, float&, float&);
+
+        static void read(uint8_t*, unsigned int);
+        static void read(float&);
 
         static void poll();
         static void poll(int timeout);

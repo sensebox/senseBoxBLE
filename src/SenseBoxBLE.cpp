@@ -9,7 +9,11 @@ uint16_t SenseBoxBLE::maxConInterval = 48; //30ms
 uint16_t SenseBoxBLE::slaveLatency = 0;
 uint16_t SenseBoxBLE::timeout = 50;
 
+int SenseBoxBLE::h_configCharacteristic=0;
+
 uint8_t* SenseBoxBLE::data = nullptr; //this pointer points to the data the user wants to write in the characteristic
+
+uint8_t SenseBoxBLE::configCharValue[21]={0};
 
 void(*SenseBoxBLE::configHandler)() = nullptr;
 
@@ -29,7 +33,6 @@ void SenseBoxBLE::start(const char* DEVICE_NAME)
   port.setConnectionInterval(minConInterval, maxConInterval);
 
   port.checkResponse("AT+UBTAD=020A0605121800280011074A5153BA405E438B7146F7300100DFCD",1000);
-
 
   port.advertise();
   port.setLocalName(DEVICE_NAME);
@@ -81,6 +84,39 @@ int SenseBoxBLE::addCharacteristic(const char* characteristicUUID){
   return port.parseResponse(String("AT+UBTGCHA=")+characteristicUUID+",1a,1,1",1000);
 }
 
+int SenseBoxBLE::setConfigCharacteristic(const char* serviceUUID, const char* characteristicUUID){
+  if (h_configCharacteristic != 0) {
+    return -1;
+  }
+  SenseBoxBLE::addService(serviceUUID);
+  h_configCharacteristic = SenseBoxBLE::addCharacteristic(characteristicUUID);
+  return h_configCharacteristic;
+}
+
+bool parseMyValue(uint8_t* target, String s){
+    String hextable="0123456789ABCDEF";
+    if(s.length() && s.length()<41){
+        s.toUpperCase();
+        for(int i=0;i<s.length();i+=2){
+            int highbits=hextable.indexOf(s[i]);
+            int lowbits=hextable.indexOf(s[i+1]);
+            if(highbits==-1 || lowbits==-1){
+                return false;
+            }
+            target[i]=(((highbits<<4)|lowbits)&0xff);
+        }
+        return true;
+    }
+    return false;
+}
+
+void SenseBoxBLE::configCharacteristicWritten(){
+  if(configHandler!=nullptr){
+    (*configHandler)();
+  }
+}
+
+
 /**
   * @brief Polls the BLE module for incoming data.
   *
@@ -101,9 +137,22 @@ void SenseBoxBLE::poll(int timeout)
   */
 void SenseBoxBLE::poll(){
     if(port.poll()){
+      if(parseMyValue(configCharValue,port.checkCharWritten(h_configCharacteristic))){
+            configCharacteristicWritten();
+        }
         port.flushInput();
     }
 
+}
+
+void SenseBoxBLE::read(uint8_t *arrayPointer, unsigned int arraySize)
+{
+  memcpy(arrayPointer, configCharValue, arraySize);
+}
+
+void SenseBoxBLE::read(float& f)
+{
+  memcpy(&f,configCharValue,4);
 }
 
 /**
