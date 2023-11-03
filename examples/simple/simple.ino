@@ -1,4 +1,6 @@
-#include <SenseBoxMCU.h>
+#if (ARDUINO_SAMD_MKR1000)
+#include <senseBoxIO.h>
+#endif
 #include <SenseBoxBLE.h>
 
 float value = 0;
