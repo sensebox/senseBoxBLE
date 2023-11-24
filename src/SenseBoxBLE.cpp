@@ -1,4 +1,5 @@
-#if defined(ARDUINO_SAMD_MKR1000)
+//#if defined(ARDUINO_SAMD_MKR1000)
+//#if defined(SENSEBOX_MCU_S2)
 
 #include "Arduino.h"
 #include <stdio.h>
@@ -165,7 +166,7 @@ void SenseBoxBLE::read(float& f)
 bool SenseBoxBLE::write(int characteristic, float& value)
 {
   data = reinterpret_cast<uint8_t*>(&value);
-  port.writeValue(characteristic,data,4);
+  return port.writeValue(characteristic,data,4);
 }
 
 /**
@@ -234,4 +235,4 @@ bool SenseBoxBLE::write(int characteristic, float& f1, float& f2, float& f3 , fl
   return port.writeValue(characteristic,data,20);
 }
 
-#endif
+//#endif
