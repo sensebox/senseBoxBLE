@@ -6,7 +6,7 @@
 
 class NINAB31Serial
 {
-	
+
 	private:
 
     static String m_input;
@@ -22,13 +22,14 @@ class NINAB31Serial
     static bool setConnectionInterval(int minInterval, int maxInterval);
 
     static int parseResponse(String msg, uint32_t timeout);
+    static String parseStringResponse(String msg, uint32_t timeout);
     static bool checkResponse(String msg, uint32_t timeout);
     static bool poll();
     static String checkCharWritten(int handle);
     static void flushInput();
     static bool advertise();
     static bool stopAdvertise();
-    
+
 };
 
 #endif
