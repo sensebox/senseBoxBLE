@@ -44,7 +44,7 @@ bool NINAB31Serial::begin(){
 }
 
 bool NINAB31Serial::setLocalName(String name){
-    if(name.length()>29){
+    if(name.length()>32){
         return false;
     }
     return checkResponse(String("AT+UBTLN=\"")+name+"\"", 1000);
@@ -126,8 +126,46 @@ int NINAB31Serial::parseResponse(String cmd, uint32_t timeout){
   return -1;
 }
 
+String NINAB31Serial::parseStringResponse(String cmd, uint32_t timeout){
+  while(SerialBLE.available()){
+    (SerialBLE.read());
+  }
+  SerialBLE.print(cmd);
+  SerialBLE.write('\r');
+  SerialBLE.flush();
+  String input="";
+  auto starttime=millis();
+  while(millis()-starttime<timeout || timeout==0){
+    if(SerialBLE.available()){
+      input+=(char)(SerialBLE.read());
+      if(input.endsWith("ERROR\r")){
+        //Serial.println(String("error with command ")+cmd);
+        return "-1";
+      }
+      if(input.endsWith("OK\r")){
+        int colonpos=input.indexOf(':');
+        int commapos=input.indexOf(',');
+         if(colonpos!=-1){
+          if(commapos!=-1){
+            return input.substring(colonpos+1,commapos);
+          }else{
+            String result = input.substring(colonpos+1);
+            int returnpos = result.indexOf('\r');
+            if (returnpos != -1) {
+              return result.substring(0, returnpos);
+            }
+            return result;
+          }
+        }
+        return "-1";
+      }
+    }
+  }
+  return "-1";
+}
+
 bool NINAB31Serial::checkResponse(String msg, uint32_t timeout){
-  while(SerialBLE.available())SerialBLE.read(); //flush input buffer    
+  while(SerialBLE.available())SerialBLE.read(); //flush input buffer
   SerialBLE.print(msg);
   SerialBLE.write('\r');
   SerialBLE.flush();
@@ -145,7 +183,7 @@ bool NINAB31Serial::checkResponse(String msg, uint32_t timeout){
     }
   }
   return false;
-    
+
 }
 
 bool NINAB31Serial::checkUnsolicited(){
@@ -186,12 +224,12 @@ String NINAB31Serial::checkCharWritten(int handle){
                 return m_input.substring(seccommapos+1,thirdcommapos);
             }
         }
-        
+
     }else{
         //Serial.println(m_input);
     }
     return "";
-    
+
 }
 
 void NINAB31Serial::flushInput(){

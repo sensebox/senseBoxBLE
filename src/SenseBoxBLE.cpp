@@ -75,6 +75,14 @@ int SenseBoxBLE::addService(const char* serviceUUID){
   return port.parseResponse(String("AT+UBTGSER=")+serviceUUID,1000);
 }
 
+void SenseBoxBLE::setName(String name){
+  port.setLocalName(name);
+}
+
+String SenseBoxBLE::getMCUId(){
+  return port.parseStringResponse("AT+UMLA=1",1000);
+}
+
 /**
   * @brief Adds a characteristic to the BLE module.
   *
