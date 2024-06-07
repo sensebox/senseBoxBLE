@@ -145,6 +145,7 @@ void SenseBoxBLE::poll(int timeout)
   *
   */
 void SenseBoxBLE::poll(){
+    memset(configCharValue, 0, sizeof(configCharValue));
     if(port.poll()){
       if(parseMyValue(configCharValue,port.checkCharWritten(h_configCharacteristic))){
             configCharacteristicWritten();
