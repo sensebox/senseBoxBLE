@@ -32,6 +32,7 @@ class SenseBoxBLE
         static int setConfigCharacteristic(const char* serviceUUID, const char* characteristicUUID);
         static void setName(String name);
         static String getMCUId();
+        static void setMCUId(String name);
 
         static bool write(int, float&);
         static bool write(int, float&, float&);

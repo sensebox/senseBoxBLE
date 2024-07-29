@@ -83,6 +83,10 @@ String SenseBoxBLE::getMCUId(){
   return port.parseStringResponse("AT+UMLA=1",1000);
 }
 
+void SenseBoxBLE::setMCUId(String address){
+  port.parseStringResponse("AT+UMLA=1,"+address,1000);
+}
+
 /**
   * @brief Adds a characteristic to the BLE module.
   *
